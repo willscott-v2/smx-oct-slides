@@ -882,17 +882,9 @@ function previewUpdatesFromGitHub() {
     // Check version first
     let githubVersion, hasUpdates = false;
     try {
-      // In simulation mode, create a mock version response
-      // In production: const versionResponse = UrlFetchApp.fetch(VERSION_URL);
-      githubVersion = {
-        version: '1.1.0',
-        releaseDate: '2024-10-03',
-        changes: [
-          'Added automated update functionality',
-          'Improved slide formatting consistency',
-          'Enhanced error handling'
-        ]
-      };
+      // Fetch real version from GitHub
+      const versionResponse = UrlFetchApp.fetch(VERSION_URL);
+      githubVersion = JSON.parse(versionResponse.getContentText());
 
       report += `📦 VERSION CHECK:\n`;
       report += `   Current:  v${GITHUB_CONFIG.currentVersion}\n`;
@@ -913,31 +905,50 @@ function previewUpdatesFromGitHub() {
       }
 
     } catch (versionError) {
-      report += `📦 VERSION CHECK: ⚠️ Could not check version\n\n`;
+      report += `📦 VERSION CHECK: ⚠️ Could not check version (${versionError.toString()})\n\n`;
+      // Fall back to checking files directly
+      githubVersion = { version: 'unknown', changes: ['Could not fetch version info'] };
     }
 
     if (hasUpdates) {
-      // Simulate data comparison for updates
-      const currentConfig = loadConfig(ss);
-      const currentSlides = loadSlides(ss);
+      // Real data comparison for updates
+      try {
+        const currentConfig = loadConfig(ss);
+        const currentSlides = loadSlides(ss);
 
-      report += `📊 DATA COMPARISON:\n`;
-      report += `   Config:  ${Object.keys(currentConfig).length} settings\n`;
-      report += `   Slides:  ${currentSlides.length} slides\n`;
-      report += `   Status:  🔄 Updates detected\n\n`;
+        // Fetch actual data from GitHub for comparison
+        const configResponse = UrlFetchApp.fetch(CONFIG_URL);
+        const slidesResponse = UrlFetchApp.fetch(SLIDES_URL);
 
-      report += `🎯 RECOMMENDED ACTION:\n`;
-      report += `   1. Use "Apply Updates" to get v${githubVersion.version}\n`;
-      report += `   2. Your data will be backed up automatically\n`;
-      report += `   3. New features will be available immediately\n\n`;
+        const githubConfigData = Utilities.parseCsv(configResponse.getContentText());
+        const githubSlidesData = Utilities.parseCsv(slidesResponse.getContentText(), '|');
+
+        report += `📊 DATA COMPARISON:\n`;
+        report += `   Config:  ${Object.keys(currentConfig).length} settings (local) vs ${githubConfigData.length - 1} (GitHub)\n`;
+        report += `   Slides:  ${currentSlides.length} slides (local) vs ${githubSlidesData.length - 1} (GitHub)\n`;
+
+        if (githubConfigData.length - 1 !== Object.keys(currentConfig).length ||
+            githubSlidesData.length - 1 !== currentSlides.length) {
+          report += `   Status:  🔄 Data differences detected\n\n`;
+        } else {
+          report += `   Status:  ✅ Data appears current\n\n`;
+        }
+
+        report += `🎯 RECOMMENDED ACTION:\n`;
+        report += `   1. Use "Apply Updates" to get v${githubVersion.version}\n`;
+        report += `   2. Your data will be backed up automatically\n`;
+        report += `   3. New features will be available immediately\n\n`;
+      } catch (dataError) {
+        report += `📊 DATA COMPARISON: ⚠️ Could not compare data\n\n`;
+      }
     } else {
       report += `✅ NO UPDATES NEEDED\n`;
       report += `   You're running the latest version!\n\n`;
     }
 
-    report += `🚧 SIMULATION MODE ACTIVE\n`;
-    report += `   Update GitHub URLs in code to enable live updates\n`;
-    report += `   Test mode prevents accidental changes\n`;
+    report += `🟢 LIVE MODE ACTIVE\n`;
+    report += `   Connected to: ${baseUrl}\n`;
+    report += `   Ready for real updates!\n`;
 
     // Show the preview report
     ui.alert('Preview Results', report, ui.ButtonSet.OK);
@@ -967,18 +978,58 @@ function applyUpdatesFromGitHub() {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-').substring(0, 19);
     createBackupSheets(ss, timestamp);
 
-    // For testing, show what would happen
-    ui.alert('Backup Created',
-      `✅ Backup sheets created with timestamp: ${timestamp}\n\n` +
-      '🚧 SIMULATION MODE:\n' +
-      'In production, this would:\n' +
-      '1. Fetch latest data from GitHub\n' +
-      '2. Update your Config and Slides sheets\n' +
-      '3. Show a summary of changes\n\n' +
-      'To enable, update the GitHub URLs in the code.',
-      ui.ButtonSet.OK);
+    // Apply real updates from GitHub
+    try {
+      const baseUrl = `https://raw.githubusercontent.com/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/${GITHUB_CONFIG.branch}`;
+      const CONFIG_URL = `${baseUrl}/config.csv`;
+      const SLIDES_URL = `${baseUrl}/slides.csv`;
+      const VERSION_URL = `${baseUrl}/version.json`;
 
-    Logger.log('Update applied (simulation mode)');
+      // Fetch data from GitHub
+      const configResponse = UrlFetchApp.fetch(CONFIG_URL);
+      const slidesResponse = UrlFetchApp.fetch(SLIDES_URL);
+      const versionResponse = UrlFetchApp.fetch(VERSION_URL);
+
+      const configData = Utilities.parseCsv(configResponse.getContentText());
+      const slidesData = Utilities.parseCsv(slidesResponse.getContentText(), '|');
+      const versionData = JSON.parse(versionResponse.getContentText());
+
+      // Update Config sheet
+      const configSheet = ss.getSheetByName('Config');
+      if (configSheet) {
+        configSheet.clear();
+        configSheet.getRange(1, 1, configData.length, configData[0].length).setValues(configData);
+      }
+
+      // Update Slides sheet
+      const slidesSheet = ss.getSheetByName('Slides');
+      if (slidesSheet) {
+        slidesSheet.clear();
+        slidesSheet.getRange(1, 1, slidesData.length, slidesData[0].length).setValues(slidesData);
+      }
+
+      // Update local version
+      setCurrentVersion(versionData.version);
+
+      ui.alert('✅ UPDATE SUCCESSFUL!',
+        `Updated to v${versionData.version}\n\n` +
+        `📋 Changes applied:\n` +
+        `   • Config: ${configData.length - 1} settings\n` +
+        `   • Slides: ${slidesData.length - 1} slides\n\n` +
+        `💾 Backup created: ${timestamp}\n\n` +
+        `🎯 What's new:\n${versionData.changes.slice(0, 3).map(c => `   • ${c}`).join('\n')}`,
+        ui.ButtonSet.OK);
+
+      Logger.log(`Update applied successfully to v${versionData.version}`);
+
+    } catch (updateError) {
+      ui.alert('❌ UPDATE FAILED',
+        `Could not fetch updates from GitHub:\n\n${updateError.toString()}\n\n` +
+        `✅ Your data is safe - backups created: ${timestamp}\n\n` +
+        `Check your internet connection and GitHub repository.`,
+        ui.ButtonSet.OK);
+      Logger.log('Update failed: ' + updateError.toString());
+    }
 
   } catch (error) {
     Logger.log('Apply error: ' + error.toString());
