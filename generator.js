@@ -1,9 +1,15 @@
 /**
  * Complete GEO Master Class Presentation Generator
- * Version: 1.1.0
+ * Version: 1.2.0
  * Last Updated: 2025-10-03
  *
  * CHANGELOG:
+ * 1.2.0 (2025-10-03)
+ * - Fixed image insertion for all slides with chart_ref or media_ref
+ * - Maintains aspect ratio for images and charts
+ * - Improved image positioning and sizing
+ * - Charts and images now work in any layout type
+ *
  * 1.1.0 (2025-10-03)
  * - Added real image insertion from Google Drive
  * - Removed redundant menu functions
@@ -21,7 +27,7 @@
 // ============================================================================
 
 // Script version constant
-const SCRIPT_VERSION = '1.1.0';
+const SCRIPT_VERSION = '1.2.0';
 const SCRIPT_RELEASE_DATE = '2025-10-03';
 
 function onOpen() {
@@ -466,12 +472,12 @@ function createBasicSlide(presentation, slideData, config) {
       }
     }
 
-    // Add special elements for specific layouts
-    if (slideData.layout === 'Chart' && slideData.chart_ref) {
+    // Add special elements - check for any chart_ref or media_ref regardless of layout
+    if (slideData.chart_ref && slideData.chart_ref.trim() !== '') {
       addChartPlaceholder(slide, slideData.chart_ref, presentation);
     }
 
-    if (slideData.layout === 'Image' && slideData.media_ref) {
+    if (slideData.media_ref && slideData.media_ref.trim() !== '') {
       addImagePlaceholder(slide, slideData.media_ref, presentation);
     }
 
@@ -546,14 +552,32 @@ function addChartPlaceholder(slide, chartRef, presentation) {
           // Insert the actual chart image
           const chart = slide.insertImage(chartFile.getBlob());
 
-          // Center and size the chart appropriately
-          const chartWidth = presentation.getPageWidth() * 0.8;
-          const chartHeight = presentation.getPageHeight() * 0.5;
-          const chartLeft = (presentation.getPageWidth() - chartWidth) / 2;
-          const chartTop = presentation.getPageHeight() * 0.35;
+          // Get original dimensions to maintain aspect ratio
+          const originalWidth = chart.getWidth();
+          const originalHeight = chart.getHeight();
+          const aspectRatio = originalWidth / originalHeight;
 
-          chart.setWidth(chartWidth);
-          chart.setHeight(chartHeight);
+          // Calculate new size maintaining aspect ratio
+          const maxWidth = presentation.getPageWidth() * 0.7;
+          const maxHeight = presentation.getPageHeight() * 0.5;
+
+          let newWidth, newHeight;
+          if (maxWidth / maxHeight > aspectRatio) {
+            // Height is limiting factor
+            newHeight = maxHeight;
+            newWidth = newHeight * aspectRatio;
+          } else {
+            // Width is limiting factor
+            newWidth = maxWidth;
+            newHeight = newWidth / aspectRatio;
+          }
+
+          // Center the chart
+          const chartLeft = (presentation.getPageWidth() - newWidth) / 2;
+          const chartTop = presentation.getPageHeight() * 0.3;
+
+          chart.setWidth(newWidth);
+          chart.setHeight(newHeight);
           chart.setLeft(chartLeft);
           chart.setTop(chartTop);
 
@@ -621,14 +645,32 @@ function addImagePlaceholder(slide, mediaRef, presentation) {
           // Insert the actual image
           const image = slide.insertImage(imageFile.getBlob());
 
-          // Center and size the image appropriately
-          const imgWidth = presentation.getPageWidth() * 0.8;
-          const imgHeight = presentation.getPageHeight() * 0.5;
-          const imgLeft = (presentation.getPageWidth() - imgWidth) / 2;
-          const imgTop = presentation.getPageHeight() * 0.35;
+          // Get original dimensions to maintain aspect ratio
+          const originalWidth = image.getWidth();
+          const originalHeight = image.getHeight();
+          const aspectRatio = originalWidth / originalHeight;
 
-          image.setWidth(imgWidth);
-          image.setHeight(imgHeight);
+          // Calculate new size maintaining aspect ratio
+          const maxWidth = presentation.getPageWidth() * 0.7;
+          const maxHeight = presentation.getPageHeight() * 0.5;
+
+          let newWidth, newHeight;
+          if (maxWidth / maxHeight > aspectRatio) {
+            // Height is limiting factor
+            newHeight = maxHeight;
+            newWidth = newHeight * aspectRatio;
+          } else {
+            // Width is limiting factor
+            newWidth = maxWidth;
+            newHeight = newWidth / aspectRatio;
+          }
+
+          // Center the image
+          const imgLeft = (presentation.getPageWidth() - newWidth) / 2;
+          const imgTop = presentation.getPageHeight() * 0.3;
+
+          image.setWidth(newWidth);
+          image.setHeight(newHeight);
           image.setLeft(imgLeft);
           image.setTop(imgTop);
 

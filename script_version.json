@@ -1,13 +1,13 @@
 {
-  "version": "1.1.0",
+  "version": "1.2.0",
   "releaseDate": "2025-10-03",
-  "description": "Enhanced image handling and streamlined interface",
+  "description": "Complete image insertion with proper aspect ratios",
   "changes": [
-    "Real image insertion from Google Drive",
-    "Removed redundant menu functions",
-    "Enhanced error handling with retry logic",
-    "Fixed image and chart placeholder functions",
-    "Added script version tracking"
+    "Fixed image insertion for ALL slides with chart_ref or media_ref",
+    "Maintains aspect ratio for images and charts",
+    "Improved image positioning and sizing",
+    "Charts and images now work in any layout type",
+    "No more distorted images"
   ],
   "compatibility": {
     "minDataVersion": "1.0.0",
