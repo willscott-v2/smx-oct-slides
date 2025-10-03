@@ -483,6 +483,58 @@ function getThemeForSection(sectionId, config) {
 
 function addChartPlaceholder(slide, chartRef, presentation) {
   try {
+    // Try to find and insert the actual chart image from Google Drive
+    const chartName = chartRef.toString().trim();
+
+    if (chartName) {
+      try {
+        // Search for the chart file in the images folder
+        const folders = DriveApp.getFoldersByName('images');
+        let chartFile = null;
+
+        while (folders.hasNext() && !chartFile) {
+          const folder = folders.next();
+          const files = folder.getFilesByName(chartName);
+          if (files.hasNext()) {
+            chartFile = files.next();
+            break;
+          }
+        }
+
+        // If not found in images folder, search in root
+        if (!chartFile) {
+          const files = DriveApp.getFilesByName(chartName);
+          if (files.hasNext()) {
+            chartFile = files.next();
+          }
+        }
+
+        if (chartFile) {
+          // Insert the actual chart image
+          const chart = slide.insertImage(chartFile.getBlob());
+
+          // Center and size the chart appropriately
+          const chartWidth = presentation.getPageWidth() * 0.8;
+          const chartHeight = presentation.getPageHeight() * 0.5;
+          const chartLeft = (presentation.getPageWidth() - chartWidth) / 2;
+          const chartTop = presentation.getPageHeight() * 0.35;
+
+          chart.setWidth(chartWidth);
+          chart.setHeight(chartHeight);
+          chart.setLeft(chartLeft);
+          chart.setTop(chartTop);
+
+          Logger.log('Successfully inserted chart: ' + chartName);
+          return;
+        } else {
+          Logger.log('Chart file not found in Drive: ' + chartName);
+        }
+      } catch (e) {
+        Logger.log('Error loading chart from Drive: ' + e.toString());
+      }
+    }
+
+    // Fall back to placeholder if chart not found
     const chartPlaceholder = slide.insertShape(
       SlidesApp.ShapeType.RECTANGLE,
       presentation.getPageWidth() * 0.1,
@@ -491,7 +543,7 @@ function addChartPlaceholder(slide, chartRef, presentation) {
       presentation.getPageHeight() * 0.4
     );
 
-    chartPlaceholder.getText().setText('📊 CHART: ' + chartRef);
+    chartPlaceholder.getText().setText('📊 CHART NOT FOUND: ' + chartRef);
     chartPlaceholder.getText().getTextStyle()
       .setFontSize(24)
       .setForegroundColor('#666666');
@@ -506,6 +558,58 @@ function addChartPlaceholder(slide, chartRef, presentation) {
 
 function addImagePlaceholder(slide, mediaRef, presentation) {
   try {
+    // Try to find and insert the actual image from Google Drive
+    const imageName = mediaRef.toString().trim();
+
+    if (imageName) {
+      try {
+        // Search for the image file in the images folder
+        const folders = DriveApp.getFoldersByName('images');
+        let imageFile = null;
+
+        while (folders.hasNext() && !imageFile) {
+          const folder = folders.next();
+          const files = folder.getFilesByName(imageName);
+          if (files.hasNext()) {
+            imageFile = files.next();
+            break;
+          }
+        }
+
+        // If not found in images folder, search in root
+        if (!imageFile) {
+          const files = DriveApp.getFilesByName(imageName);
+          if (files.hasNext()) {
+            imageFile = files.next();
+          }
+        }
+
+        if (imageFile) {
+          // Insert the actual image
+          const image = slide.insertImage(imageFile.getBlob());
+
+          // Center and size the image appropriately
+          const imgWidth = presentation.getPageWidth() * 0.8;
+          const imgHeight = presentation.getPageHeight() * 0.5;
+          const imgLeft = (presentation.getPageWidth() - imgWidth) / 2;
+          const imgTop = presentation.getPageHeight() * 0.35;
+
+          image.setWidth(imgWidth);
+          image.setHeight(imgHeight);
+          image.setLeft(imgLeft);
+          image.setTop(imgTop);
+
+          Logger.log('Successfully inserted image: ' + imageName);
+          return;
+        } else {
+          Logger.log('Image file not found in Drive: ' + imageName);
+        }
+      } catch (e) {
+        Logger.log('Error loading image from Drive: ' + e.toString());
+      }
+    }
+
+    // Fall back to placeholder if image not found
     const imagePlaceholder = slide.insertShape(
       SlidesApp.ShapeType.RECTANGLE,
       presentation.getPageWidth() * 0.1,
@@ -514,7 +618,7 @@ function addImagePlaceholder(slide, mediaRef, presentation) {
       presentation.getPageHeight() * 0.4
     );
 
-    imagePlaceholder.getText().setText('🖼️ IMAGE: ' + mediaRef);
+    imagePlaceholder.getText().setText('🖼️ IMAGE NOT FOUND: ' + mediaRef);
     imagePlaceholder.getText().getTextStyle()
       .setFontSize(24)
       .setForegroundColor('#666666');
