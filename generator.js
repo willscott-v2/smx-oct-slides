@@ -13,11 +13,8 @@ function onOpen() {
     .addItem('Generate Slides', 'generatePresentation')
     .addItem('Test Configuration', 'testConfig')
     .addItem('Validate Data', 'validateSlideData')
-    .addItem('Setup Config Tab', 'setupConfigTab')
     .addSeparator()
-    .addItem('🔍 Debug Slide Data', 'debugSlideData')
     .addItem('🔍 Test One Slide', 'testSlideCreation')
-    .addItem('🔍 Check Headers', 'checkSlideHeaders')
     .addSeparator()
     .addItem('🔄 Preview Updates (Safe)', 'previewUpdatesFromGitHub')
     .addItem('📥 Apply Updates', 'applyUpdatesFromGitHub')
@@ -573,54 +570,6 @@ function addFooterToAllSlides(presentation, config) {
 // DEBUG FUNCTIONS
 // ============================================================================
 
-function debugSlideData() {
-  try {
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
-    const slides = loadSlides(ss);
-
-    Logger.log('=== SLIDE DATA DEBUG ===');
-    Logger.log('Total slides loaded: ' + slides.length);
-
-    // Show first 3 slides with all their data
-    for (let i = 0; i < Math.min(3, slides.length); i++) {
-      Logger.log('--- Slide ' + (i + 1) + ' ---');
-      Logger.log('Order: ' + slides[i].order);
-      Logger.log('Layout: "' + slides[i].layout + '"');
-      Logger.log('Title: "' + slides[i].title + '"');
-      Logger.log('Subtitle: "' + slides[i].subtitle + '"');
-      Logger.log('Bullets: "' + slides[i].bullets.substring(0, 100) + '..."');
-      Logger.log('Speaker Notes: "' + slides[i].speaker_notes.substring(0, 100) + '..."');
-      Logger.log('Section ID: "' + slides[i].section_id + '"');
-    }
-
-    // Check for common issues
-    const issues = [];
-    slides.forEach((slide, index) => {
-      if (!slide.title || slide.title === '') {
-        issues.push(`Slide ${index + 1}: Empty title`);
-      }
-      if (!slide.bullets || slide.bullets === '') {
-        issues.push(`Slide ${index + 1}: Empty bullets`);
-      }
-    });
-
-    Logger.log('=== ISSUES FOUND ===');
-    Logger.log('Issues: ' + issues.length);
-    issues.forEach(issue => Logger.log('- ' + issue));
-
-    const summary =
-      'DEBUG RESULTS:\n\n' +
-      'Slides loaded: ' + slides.length + '\n' +
-      'Issues found: ' + issues.length + '\n\n' +
-      'Check Apps Script logs for detailed data.';
-
-    SpreadsheetApp.getUi().alert('Debug Results', summary, SpreadsheetApp.getUi().ButtonSet.OK);
-
-  } catch (error) {
-    Logger.log('DEBUG ERROR: ' + error.toString());
-    SpreadsheetApp.getUi().alert('Debug failed: ' + error.toString());
-  }
-}
 
 function testSlideCreation() {
   try {
@@ -677,117 +626,11 @@ function testSlideCreation() {
   }
 }
 
-function checkSlideHeaders() {
-  try {
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
-    const sheet = ss.getSheetByName('Slides');
-
-    if (!sheet) {
-      SpreadsheetApp.getUi().alert('No Slides sheet found!');
-      return;
-    }
-
-    const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
-
-    Logger.log('=== HEADERS DEBUG ===');
-    Logger.log('Found headers: ' + headers.length);
-    headers.forEach((header, index) => {
-      Logger.log('Column ' + (index + 1) + ': "' + header + '"');
-    });
-
-    // Check for required headers
-    const required = ['order', 'title'];
-    const missing = [];
-
-    required.forEach(req => {
-      const found = headers.some(h => h.toString().toLowerCase().replace(/\s+/g, '_') === req);
-      if (!found) {
-        missing.push(req);
-      }
-    });
-
-    let message = 'Headers found: ' + headers.length + '\n\n';
-    message += 'Headers: ' + headers.join(', ') + '\n\n';
-    if (missing.length > 0) {
-      message += 'MISSING REQUIRED: ' + missing.join(', ');
-    } else {
-      message += 'All required headers present!';
-    }
-
-    SpreadsheetApp.getUi().alert('Header Check', message, SpreadsheetApp.getUi().ButtonSet.OK);
-
-  } catch (error) {
-    SpreadsheetApp.getUi().alert('Header check failed: ' + error.toString());
-  }
-}
 
 // ============================================================================
 // SETUP FUNCTIONS
 // ============================================================================
 
-function setupConfigTab() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  let configSheet = ss.getSheetByName('Config');
-
-  if (configSheet) {
-    const ui = SpreadsheetApp.getUi();
-    const response = ui.alert('Config tab exists',
-      'Do you want to replace it with default settings?',
-      ui.ButtonSet.YES_NO);
-    if (response !== ui.Button.YES) {
-      return;
-    }
-    ss.deleteSheet(configSheet);
-  }
-
-  // Create new config sheet
-  configSheet = ss.insertSheet('Config');
-
-  // Enhanced configuration with all needed settings
-  const configData = [
-    ['Setting', 'Value'],
-    ['Deck Title', 'Generative Engine Optimization Master Class'],
-    ['Deck Subtitle', 'Online October 7, 2025'],
-    ['Presenter Name', 'Will Scott'],
-    ['Company Name', 'Search Influence'],
-    ['Footer Text', 'willscott.me/links  Search Influence © 2025'],
-    ['Header Font', 'Arial'],
-    ['Body Font', 'Arial'],
-    ['Title Slide Font Size', 44],
-    ['Section Slide Font Size', 40],
-    ['Content Title Font Size', 36],
-    ['Subtitle Font Size', 24],
-    ['Bullet Font Size', 20],
-    ['Speaker Notes Font Size', 14],
-    ['Text Color', '#000000'],
-    ['Highlight Color', '#E8E8E8'],
-    ['Session 1 Background', '#667eea'],
-    ['Session 1 Text Color', '#FFFFFF'],
-    ['Session 2 Background', '#84fab0'],
-    ['Session 2 Text Color', '#000000'],
-    ['Session 3 Background', '#a8edea'],
-    ['Session 3 Text Color', '#000000'],
-    ['Session 4 Background', '#ffecd2'],
-    ['Session 4 Text Color', '#000000'],
-    ['Recap Background', '#F5F5F5'],
-    ['Recap Text Color', '#333333'],
-    ['QR Code Size', 150]
-  ];
-
-  // Write configuration data
-  const range = configSheet.getRange(1, 1, configData.length, 2);
-  range.setValues(configData);
-
-  // Format header row
-  configSheet.getRange(1, 1, 1, 2)
-    .setFontWeight('bold')
-    .setBackground('#E0E0E0');
-
-  // Auto-resize columns
-  configSheet.autoResizeColumns(1, 2);
-
-  SpreadsheetApp.getUi().alert('Config tab created successfully!');
-}
 
 function testConfig() {
   try {
