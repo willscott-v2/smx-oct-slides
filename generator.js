@@ -851,8 +851,8 @@ function validateSlideData() {
 
 // Version management configuration
 const GITHUB_CONFIG = {
-  username: 'YOUR_USERNAME',
-  repo: 'smx-geo-generator',
+  username: 'willscott-v2',
+  repo: 'smx-oct-slides',
   branch: 'main',  // or 'v1.0', 'stable', etc.
   currentVersion: '1.0.0'  // Stored locally, compared with GitHub
 };
