@@ -857,6 +857,40 @@ const GITHUB_CONFIG = {
   currentVersion: '1.0.0'  // Stored locally, compared with GitHub
 };
 
+// Helper function for robust fetching with retry logic
+function fetchWithRetry(url, maxRetries = 3) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      console.log(`Fetching ${url} (attempt ${attempt}/${maxRetries})`);
+
+      const response = UrlFetchApp.fetch(url, {
+        muteHttpExceptions: true,
+        followRedirects: true,
+        headers: {
+          'User-Agent': 'SMX-GEO-Generator/1.0.0',
+          'Accept': 'text/plain,application/json,*/*'
+        }
+      });
+
+      const responseCode = response.getResponseCode();
+      console.log(`Response code: ${responseCode}`);
+
+      if (responseCode === 200) {
+        return response.getContentText();
+      } else {
+        throw new Error(`HTTP ${responseCode}: ${response.getContentText()}`);
+      }
+    } catch (error) {
+      console.error(`Attempt ${attempt} failed:`, error.toString());
+      if (attempt === maxRetries) {
+        throw new Error(`Failed after ${maxRetries} attempts: ${error.toString()}`);
+      }
+      // Wait before retry (exponential backoff)
+      Utilities.sleep(1000 * attempt);
+    }
+  }
+}
+
 function previewUpdatesFromGitHub() {
   try {
     // GitHub URLs with version support
@@ -882,9 +916,9 @@ function previewUpdatesFromGitHub() {
     // Check version first
     let githubVersion, hasUpdates = false;
     try {
-      // Fetch real version from GitHub
-      const versionResponse = UrlFetchApp.fetch(VERSION_URL);
-      githubVersion = JSON.parse(versionResponse.getContentText());
+      // Fetch real version from GitHub with retry logic
+      const versionContent = fetchWithRetry(VERSION_URL);
+      githubVersion = JSON.parse(versionContent);
 
       report += `📦 VERSION CHECK:\n`;
       report += `   Current:  v${GITHUB_CONFIG.currentVersion}\n`;
@@ -916,12 +950,12 @@ function previewUpdatesFromGitHub() {
         const currentConfig = loadConfig(ss);
         const currentSlides = loadSlides(ss);
 
-        // Fetch actual data from GitHub for comparison
-        const configResponse = UrlFetchApp.fetch(CONFIG_URL);
-        const slidesResponse = UrlFetchApp.fetch(SLIDES_URL);
+        // Fetch actual data from GitHub for comparison with retry logic
+        const configContent = fetchWithRetry(CONFIG_URL);
+        const slidesContent = fetchWithRetry(SLIDES_URL);
 
-        const githubConfigData = Utilities.parseCsv(configResponse.getContentText());
-        const githubSlidesData = Utilities.parseCsv(slidesResponse.getContentText(), '|');
+        const githubConfigData = Utilities.parseCsv(configContent);
+        const githubSlidesData = Utilities.parseCsv(slidesContent, '|');
 
         report += `📊 DATA COMPARISON:\n`;
         report += `   Config:  ${Object.keys(currentConfig).length} settings (local) vs ${githubConfigData.length - 1} (GitHub)\n`;
@@ -985,14 +1019,14 @@ function applyUpdatesFromGitHub() {
       const SLIDES_URL = `${baseUrl}/slides.csv`;
       const VERSION_URL = `${baseUrl}/version.json`;
 
-      // Fetch data from GitHub
-      const configResponse = UrlFetchApp.fetch(CONFIG_URL);
-      const slidesResponse = UrlFetchApp.fetch(SLIDES_URL);
-      const versionResponse = UrlFetchApp.fetch(VERSION_URL);
+      // Fetch data from GitHub with retry logic
+      const configContent = fetchWithRetry(CONFIG_URL);
+      const slidesContent = fetchWithRetry(SLIDES_URL);
+      const versionContent = fetchWithRetry(VERSION_URL);
 
-      const configData = Utilities.parseCsv(configResponse.getContentText());
-      const slidesData = Utilities.parseCsv(slidesResponse.getContentText(), '|');
-      const versionData = JSON.parse(versionResponse.getContentText());
+      const configData = Utilities.parseCsv(configContent);
+      const slidesData = Utilities.parseCsv(slidesContent, '|');
+      const versionData = JSON.parse(versionContent);
 
       // Update Config sheet
       const configSheet = ss.getSheetByName('Config');
