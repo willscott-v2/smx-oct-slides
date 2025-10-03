@@ -1,11 +1,28 @@
 /**
  * Complete GEO Master Class Presentation Generator
- * Version: 4.0 - Simplified and debugged
+ * Version: 1.1.0
+ * Last Updated: 2025-10-03
+ *
+ * CHANGELOG:
+ * 1.1.0 (2025-10-03)
+ * - Added real image insertion from Google Drive
+ * - Removed redundant menu functions
+ * - Enhanced error handling with retry logic
+ * - Fixed image and chart placeholder functions
+ *
+ * 1.0.0 (2025-10-03)
+ * - Initial release with auto-update functionality
+ * - GitHub integration for data synchronization
+ * - Comprehensive slide generation system
  */
 
 // ============================================================================
 // MENU & INITIALIZATION
 // ============================================================================
+
+// Script version constant
+const SCRIPT_VERSION = '1.1.0';
+const SCRIPT_RELEASE_DATE = '2025-10-03';
 
 function onOpen() {
   const ui = SpreadsheetApp.getUi();
@@ -18,7 +35,23 @@ function onOpen() {
     .addSeparator()
     .addItem('🔄 Preview Updates (Safe)', 'previewUpdatesFromGitHub')
     .addItem('📥 Apply Updates', 'applyUpdatesFromGitHub')
+    .addSeparator()
+    .addItem('ℹ️ Script Version', 'showScriptVersion')
     .addToUi();
+}
+
+function showScriptVersion() {
+  const ui = SpreadsheetApp.getUi();
+  const message =
+    `Script Version: ${SCRIPT_VERSION}\n` +
+    `Release Date: ${SCRIPT_RELEASE_DATE}\n\n` +
+    `Data Version: ${GITHUB_CONFIG.currentVersion}\n\n` +
+    `To update the script:\n` +
+    `1. Go to Extensions → Apps Script\n` +
+    `2. Copy the latest code from GitHub\n` +
+    `3. Save and refresh the sheet`;
+
+  ui.alert('Generator Version Info', message, ui.ButtonSet.OK);
 }
 
 // ============================================================================

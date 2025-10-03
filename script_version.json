@@ -1,0 +1,23 @@
+{
+  "version": "1.1.0",
+  "releaseDate": "2025-10-03",
+  "description": "Enhanced image handling and streamlined interface",
+  "changes": [
+    "Real image insertion from Google Drive",
+    "Removed redundant menu functions",
+    "Enhanced error handling with retry logic",
+    "Fixed image and chart placeholder functions",
+    "Added script version tracking"
+  ],
+  "compatibility": {
+    "minDataVersion": "1.0.0",
+    "googleAppsScript": "V8 Runtime"
+  },
+  "updateInstructions": [
+    "Copy generator.js from GitHub",
+    "Open Google Sheets → Extensions → Apps Script",
+    "Replace all code with new version",
+    "Save and refresh the sheet"
+  ],
+  "githubUrl": "https://github.com/willscott-v2/smx-oct-slides/blob/main/generator.js"
+}
