@@ -1,0 +1,32 @@
+{
+  "version": "1.0.0",
+  "releaseDate": "2024-10-03",
+  "description": "Initial release of SMX GEO Generator with auto-update functionality",
+  "changes": [
+    "Universal black-on-white formatting",
+    "Simplified slide structure (9 essential columns)",
+    "Enhanced Google Apps Script with better error handling",
+    "Non-destructive auto-update system",
+    "GitHub integration with version management"
+  ],
+  "compatibility": {
+    "minGoogleSheetsVersion": "current",
+    "minAppsScriptVersion": "current"
+  },
+  "files": {
+    "config.csv": {
+      "description": "Configuration settings",
+      "checksum": "placeholder"
+    },
+    "slides.csv": {
+      "description": "61 slides of GEO master class content",
+      "checksum": "placeholder"
+    },
+    "generator.js": {
+      "description": "Google Apps Script for slide generation",
+      "checksum": "placeholder"
+    }
+  },
+  "breaking_changes": [],
+  "migration_notes": "First version - no migration needed"
+}

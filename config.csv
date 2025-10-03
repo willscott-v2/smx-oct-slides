@@ -1,0 +1,43 @@
+Setting,Value
+Deck Title,Generative Engine Optimization Master Class
+Deck Subtitle,Online October 7, 2025
+Presenter Name,Will Scott
+Company Name,Search Influence
+Footer Text,willscott.me/links  Search Influence © 2025
+Header Font,Arial
+Body Font,Arial
+Code Font,Courier New
+Title Slide Font Size,44
+Section Slide Font Size,40
+Content Title Font Size,36
+Subtitle Font Size,24
+Bullet Font Size,20
+Speaker Notes Font Size,14
+Text Color,#000000
+Highlight Color,#E8E8E8
+Primary Brand Color,#0066CC
+Secondary Brand Color,#4A90E2
+Accent Color,#FF6B35
+Session 1 Background,#FFFFFF
+Session 1 Text Color,#000000
+Session 2 Background,#FFFFFF
+Session 2 Text Color,#000000
+Session 3 Background,#FFFFFF
+Session 3 Text Color,#000000
+Session 4 Background,#FFFFFF
+Session 4 Text Color,#000000
+Recap Background,#FFFFFF
+Recap Text Color,#000000
+Default Background Image ID,
+Faded Background Image ID,
+SMX Logo Image ID,
+Logo Position,bottom-right
+Logo Size,small
+QR Code Size,150
+Slide Transition,fade
+Transition Duration,0.5
+Bullet Animation,appear
+Chart Animation,grow
+Total Duration Minutes,360
+Include Speaker Notes,true
+Auto Advance,false
