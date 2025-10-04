@@ -1,13 +1,14 @@
 {
-  "version": "1.0.0",
-  "releaseDate": "2024-10-03",
-  "description": "Initial release of SMX GEO Generator with auto-update functionality",
+  "version": "1.2.1",
+  "releaseDate": "2025-10-04",
+  "description": "Updated release with chart prompts documentation and corrected project information",
   "changes": [
-    "Universal black-on-white formatting",
-    "Simplified slide structure (9 essential columns)",
-    "Enhanced Google Apps Script with better error handling",
-    "Non-destructive auto-update system",
-    "GitHub integration with version management"
+    "Added comprehensive chart_prompts.md documentation",
+    "Updated README with correct slide count (87 slides)",
+    "Corrected version dates to 2025",
+    "Added supporting files documentation",
+    "Preserved chart creation prompts from previous context",
+    "Enhanced project documentation completeness"
   ],
   "compatibility": {
     "minGoogleSheetsVersion": "current",
@@ -19,7 +20,11 @@
       "checksum": "placeholder"
     },
     "slides.csv": {
-      "description": "61 slides of GEO master class content",
+      "description": "87 slides of GEO master class content",
+      "checksum": "placeholder"
+    },
+    "chart_prompts.md": {
+      "description": "Detailed chart creation prompts for AI tools",
       "checksum": "placeholder"
     },
     "generator.js": {
