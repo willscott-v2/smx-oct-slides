@@ -1,14 +1,15 @@
 {
-  "version": "1.2.1",
+  "version": "1.2.2",
   "releaseDate": "2025-10-04",
-  "description": "Updated release with chart prompts documentation and corrected project information",
+  "description": "Final production version with all fixes and portable template system",
   "changes": [
-    "Added comprehensive chart_prompts.md documentation",
-    "Updated README with correct slide count (87 slides)",
-    "Corrected version dates to 2025",
-    "Added supporting files documentation",
-    "Preserved chart creation prompts from previous context",
-    "Enhanced project documentation completeness"
+    "Updated generator.js to v1.2.1 with improved error handling",
+    "Fixed slide organization and removed duplicate Thank You slide",
+    "Corrected slide count to 108 slides with Option B enhancements",
+    "Created portable presentation system in Maersk directory",
+    "Fixed HARO reference to 'Source of Sources'",
+    "Removed problematic image references from Schema slides",
+    "Cleaned up directory structure with archive organization"
   ],
   "compatibility": {
     "minGoogleSheetsVersion": "current",
@@ -20,7 +21,7 @@
       "checksum": "placeholder"
     },
     "slides.csv": {
-      "description": "87 slides of GEO master class content",
+      "description": "108 slides of GEO master class content with Option B enhancements",
       "checksum": "placeholder"
     },
     "chart_prompts.md": {

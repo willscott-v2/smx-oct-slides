@@ -1,9 +1,14 @@
 /**
  * Complete GEO Master Class Presentation Generator
- * Version: 1.2.0
- * Last Updated: 2025-10-03
+ * Version: 1.2.1
+ * Last Updated: 2025-10-04
  *
  * CHANGELOG:
+ * 1.2.1 (2025-10-04)
+ * - Synced improvements from Maersk implementation
+ * - Enhanced image and chart handling across all layouts
+ * - Improved error messages and debugging
+ *
  * 1.2.0 (2025-10-03)
  * - Fixed image insertion for all slides with chart_ref or media_ref
  * - Maintains aspect ratio for images and charts
@@ -27,8 +32,8 @@
 // ============================================================================
 
 // Script version constant
-const SCRIPT_VERSION = '1.2.0';
-const SCRIPT_RELEASE_DATE = '2025-10-03';
+const SCRIPT_VERSION = '1.2.1';
+const SCRIPT_RELEASE_DATE = '2025-10-04';
 
 function onOpen() {
   const ui = SpreadsheetApp.getUi();
